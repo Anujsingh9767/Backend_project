@@ -27,6 +27,8 @@ This middleware is used to parse URL-encoded form data.
 extended: true allows nested objects in URL-encoded data.
 The request body size is limited to 16 KB.
 */
+
+//parse To read and convert raw data into a structured format that your code can understand and work with.
 app.use(express.urlencoded({extended: true , limit :"16kb"}))
 
 /*
@@ -43,8 +45,6 @@ Helps read cookies easily in req.cookies.
 */
 app.use(cookieParser())
 
-
- 
 
 
 

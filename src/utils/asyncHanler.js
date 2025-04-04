@@ -5,8 +5,10 @@ const asyncHanler =(requestHandler)=>{
 }
 
 
-
-
+// It’s a wrapper function that simplifies error handling in async
+//It wraps your async function.
+//If it throws an error, it catches it and sends it to next().
+//Express sees the error and handles it using your custom error middleware (or default one).
 export {asyncHanler}
 
 
