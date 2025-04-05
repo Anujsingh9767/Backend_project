@@ -46,10 +46,16 @@ Helps read cookies easily in req.cookies.
 app.use(cookieParser())
 
 
-
-
-
 // middleware usse krte time most of the time aap.use(cors()) aese krte hain 
 
+
+//routes import 
+import userRouter from "./routes/user.routes.js"
+
+
+//routes declaration
+app.use("/api/v1/users" , userRouter)
+//  http://localhost:8000/api/v1/users/register
+//  http://localhost:8000/api/v1/users/login     this is how our url will be formed 
 
 export {app}

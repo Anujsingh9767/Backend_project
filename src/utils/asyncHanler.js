@@ -1,5 +1,5 @@
 const asyncHanler =(requestHandler)=>{
-    (req,res,next)=>{
+    return (req,res,next)=>{
         Promise.resolve(requestHandler(req,res,next)).catch((err)=>next(err))
     }
 }
@@ -10,8 +10,6 @@ const asyncHanler =(requestHandler)=>{
 //If it throws an error, it catches it and sends it to next().
 //Express sees the error and handles it using your custom error middleware (or default one).
 export {asyncHanler}
-
-
 
 
 // const asyncHandler =()=>{}

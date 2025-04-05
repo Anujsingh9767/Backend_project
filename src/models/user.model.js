@@ -88,7 +88,7 @@ userSchema.methods.generateRefreshToken=function(){
             _id: this._id,
             //refresh token mai hum kam data send krte hain 
         },
-        process.env.REFRESH_TOKEN_SECRE,
+        process.env.REFRESH_TOKEN_SECRET,
         {
             expiresIn: process.env.REFRESH_TOKEN_EXPIRY
         }
