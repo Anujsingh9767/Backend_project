@@ -59,11 +59,13 @@ const userSchema = new Schema(
 //kyuki use this kai baare mai koi idea nhi hota hai 
 userSchema.pre("save", async function (next) {
     if(!this.isModified("password"))return next();
-     this.password = bcrypt.hash(this.password,10) //can be use await here 
+     this.password = await bcrypt.hash(this.password,10) //can be use await here 
      next()
      // 10 -> means 10 round 
 })
 
+
+// these are custom methods 
 userSchema.methods.isPasswordCorrect=async function (password) {
     return await bcrypt.compare(password , this.password)
 }
