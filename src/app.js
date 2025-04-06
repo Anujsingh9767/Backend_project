@@ -55,7 +55,7 @@ import userRouter from "./routes/user.routes.js"
 
 //routes declaration
 app.use("/api/v1/users" , userRouter)
-//  http://localhost:8000/api/v1/users/register
-//  http://localhost:8000/api/v1/users/login     this is how our url will be formed 
+//  http://localhost:800/api/v1/users/register
+//  http://localhost:800/api/v1/users/login     this is how our url will be formed 
 
 export {app}

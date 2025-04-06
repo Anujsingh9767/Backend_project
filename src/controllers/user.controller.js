@@ -22,6 +22,8 @@ const registerUser= asyncHanler(async (req,res)=>{
     console.log("email:",email)
 
 
+    //checking whether someone hasnot pass empty string 
+
     if(
         [fullName,email,username,password].some((field)=>
         field?.trim()=="")
@@ -33,15 +35,32 @@ const registerUser= asyncHanler(async (req,res)=>{
 
     // use this syntax for checking wheater email or username exist 
     //User - is in database models
-    const existedUser = User.findOne({
+    const existedUser = await User.findOne({
         $or:[{username},{email}]
     })
     if(existedUser){
         throw new ApiError(409,"User with email or username alreay exist")
     }
+    
+    
+    // console.log(req.files)
+    const avatarLocalPath = await req.files?.avatar[0]?.path;
 
-    const avatarLocalPath =req.files?.avatar[0]?.path;
-    const coverImageLocalPath =req.files?.coverImage[0]?.path;
+
+    //this will throw error if we didnot upload coverimage file 
+    // const coverImageLocalPath =await req.files?.coverImage[0]?.path;
+
+    let coverImageLocalPath;
+    if(req.files && Array.isArray(req.files.coverImage) && 
+      req.files.coverImage.length>0){
+        coverImageLocalPath=req.files.coverImage[0].path
+
+    }
+
+
+
+
+
 
     //now we are checking wheather avatar uploads to local disstorage
     
@@ -51,11 +70,14 @@ const registerUser= asyncHanler(async (req,res)=>{
 
     const avatar = await uploadOnCloudinary(avatarLocalPath)
     const coverImage = await uploadOnCloudinary(coverImageLocalPath)
+    //agr yha pr cover image nhi milta hai to cloudnary ek emmpty string return kr deta hai 
 
     if(!avatar){
-        throw new ApiError(400,"Avatar file is required ")
+        console.log(avatarLocalPath);
+        throw new ApiError(400,"Avatar file is requireddd ")
     }
 
+    //here we are creatinf User object  
     const user=  await User.create({
         fullName,
         avatar: avatar.url,
@@ -66,17 +88,21 @@ const registerUser= asyncHanler(async (req,res)=>{
     })
 
     //mongodb apne hr ek field kai sth ek "_id" add kr deta hai 
-    const createdUser =await User.findById(user._id).select(
-        "-password - refreshToken"
-    )
+    // const createdUser =await User.findById(user._id).select(
+    //     "-password - refreshToken"
+    // )
+    const createdUser = await User.findById(user._id).select("-password -refreshToken");
     if(!createdUser){
         throw new ApiError(500,"Something went wrong while registering the user")
     }
 
 
-    return res.status(201 .json(
-        new ApiResponse(200,createdUser,"User register Successfully")
-    ))
+    // return res.status(201 .json(
+    //     new ApiResponse(200,createdUser,"User register Successfully")  this is a wrong way `
+    // ))
+    return res.status(201).json(
+        new ApiResponse(200, createdUser, "User register Successfully")
+    )
 
 
 
