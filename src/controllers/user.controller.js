@@ -4,6 +4,8 @@ import {User} from "../models/user.model.js"
 import { uploadOnCloudinary } from "../utils/cloudnary.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
 import {jwt} from "jsonwebtoken"
+import { json } from "express";
+// import { error } from "console";
 
 
 const generateAccessAndRefreshTokens=async(userId)=>{
@@ -275,9 +277,128 @@ const refreshAccessToken=asyncHanler(async (req,res) => {
 )
 
 
+const changeCurrrentPassword=asyncHanler( async(req,res)=>{
+    const {oldPassword , newPassword }=req.body
+    // const {oldPassword , newPassword , confPassword}=req.body
+
+    // if(newPassword !== confPassword){
+    //     throw error
+    // }
+    const user =await User.findById( req.user?._id)
+    const isPasswordCorrect =await user.isPasswordCorrect(oldPassword)
+
+    if(!isPasswordCorrect){
+        throw new ApiError(400,"Invalid old password")
+    }
+    user.password=newPassword;
+    await  user.save({validateBeforeSave:false})
+
+    return res
+    .status(200)
+    .json(new ApiResponse(200,{},"Password changed successfully",))
+})
+
+const getCurrentUser = asyncHanler(async (req,res)=>{
+    return res 
+    .status(200)
+    .json(200,req.user ,"current user fetched successfully ")
+})
+
+
+const updateAccountDeatails=asyncHanler(async (req,res)=>{
+
+    const {fullName ,email}=req.body
+    if(!fullName || !email){
+        throw new ApiError(400,"All fields are required ")
+    }
+
+    const user = User.findByIdAndUpdate(
+        req.user?._id,
+        {
+            $set: {
+                fullName,
+                email :email,
+            }
+        },
+        {new:true}
+    ).select("-password")
+
+    return res.status(200)
+    .json(new ApiResponse(200,user,"Account details updated successfully"))
+    
+})
+
+
+//file update kai liye multer 
+
+const updateUserAvatar = asyncHanler(async (req,res)=>{
+    
+    const avatarLocalPath  =   req.file?.path
+
+    if(!avatarLocalPath){
+        throw new ApiError(400,"Avatar file is missing ")
+    }
+
+    const avatar = await uploadOnCloudinary(avatarLocalPath)
+
+    if(!avatar.url){
+        throw new ApiError(400,"Error while uploading on avatar")
+    }
+
+    const user= await User.findByIdAndUpdate(
+        req.User?._id,
+        {
+            $set:{
+                avatar:avatar.url
+            }
+        },
+        {new:true }
+    ).select("-password")
+
+    return res
+    .status(200)
+    .json(new ApiResponse(200,user , "avatar   updated successfully"))
+})
+
+
+const updateUserCoverImage = asyncHanler(async (req,res)=>{
+    
+    const coverImageLocalPath =   req.file?.path
+
+    if(!coverImageLocalPath){
+        throw new ApiError(400,"Avatar file is missing ")
+    }
+
+    const coverImage = await uploadOnCloudinary(coverImageLocalPath)
+
+    if(!coverImage.url){
+        throw new ApiError(400,"cover image file is missing ")
+    }
+
+   const user =  await User.findByIdAndUpdate(
+        req.User?._id,
+        {
+            $set:{
+                coverImage:coverImage.url
+            }
+        },
+        {new:true }
+    ).select("-password")
+
+    return res
+    .status(200)
+    .json(new ApiResponse(200,user , "coverImage updated successfully"))
+})
+
+
 export { 
     registerUser,
     loginUser,
     logoutUser,
-    refreshAccessToken
+    refreshAccessToken,
+    changeCurrrentPassword,
+    getCurrentUser,
+    updateAccountDeatails,
+    updateUserAvatar,
+    updateUserCoverImage
 } 
